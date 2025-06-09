@@ -18,11 +18,11 @@ const Hero: React.FC<HeroProps> = ({ onSearchResults }) => {
       const encodedTerm = encodeURIComponent(searchTerm);
 
       // Fetch cheapShark games (array of Game)
-      const res = await fetch(`http://localhost:8080/api/games?title=${encodedTerm}`);
+      const res = await fetch(`https://cheapgamesbackend.onrender.com/api/games?title=${encodedTerm}`);
       const cheapSharkData: Game[] = await res.json();
 
       // Fetch RAWG full Root object (with results array inside)
-      const res2 = await fetch(`http://localhost:8080/api/Background_Image?title=${encodedTerm}`);
+      const res2 = await fetch(`https://cheapgamesbackend.onrender.com/api/Background_Image?title=${encodedTerm}`);
       const rawgData: Root = await res2.json();
 
       // Pass the full Root object, not just rawgData.results

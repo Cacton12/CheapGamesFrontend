@@ -29,7 +29,7 @@ export default function Home() {
 
   useEffect(() => {
   const fetchExchangeRates = async () => {
-    const res = await fetch('http://localhost:8080/api/Currency');
+    const res = await fetch('https://cheapgamesbackend.onrender.com/api/Currency');
     const data: ExchangeData = await res.json();
     setExchangeRates(data);
   };
