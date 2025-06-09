@@ -6,13 +6,23 @@ import MainSection from './Components/MainSection';
 import { Game } from './Models/Game';
 import { Root as ExchangeData } from './Models/ExchangeData';
 import Navbar from './Components/Navbar';
-import { GameDetails } from './Models/GameData2';
+import { Root } from './Models/GameData2';
 
 export default function Home() {
   const [results, setResults] = useState<{
   cheapShark: Game[];
-  rawg: GameDetails[];
-}>({ cheapShark: [], rawg: [] });
+  rawg: Root;
+}>({
+  cheapShark: [],
+  rawg: {
+    count: 0,
+    next: null,
+    previous: null,
+    results: [],
+    user_platforms: false,
+  },
+});
+
   const [exchangeRates, setExchangeRates] = useState<ExchangeData | null>(null);
   const [selectedCurrency, setSelectedCurrency] = useState('CAD');
 

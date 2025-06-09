@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react';
 import { Game } from '../Models/Game';
-import { GameDetails } from '../Models/GameData2';
+import { Root } from '../Models/GameData2';  // Assuming Root is the full RAWG response type
 
 type HeroProps = {
-  onSearchResults: (data: { cheapShark: Game[]; rawg: GameDetails[] }) => void;
+  onSearchResults: (data: { cheapShark: Game[]; rawg: Root }) => void;
 };
 
 const Hero: React.FC<HeroProps> = ({ onSearchResults }) => {
@@ -15,16 +15,18 @@ const Hero: React.FC<HeroProps> = ({ onSearchResults }) => {
     if (!searchTerm.trim()) return;
 
     try {
-      console.log(encodeURIComponent(searchTerm))
-      const res = await fetch(`http://localhost:8080/api/games?title=${encodeURIComponent(searchTerm)}`);
-      const data: Game[] = await res.json();
-      
+      const encodedTerm = encodeURIComponent(searchTerm);
 
-       const res2 = await fetch(`http://localhost:8080/api/Background_Image?title=${encodeURIComponent(searchTerm)}`);
-       const data2: GameDetails[] = await res2.json();
+      // Fetch cheapShark games (array of Game)
+      const res = await fetch(`http://localhost:8080/api/games?title=${encodedTerm}`);
+      const cheapSharkData: Game[] = await res.json();
 
+      // Fetch RAWG full Root object (with results array inside)
+      const res2 = await fetch(`http://localhost:8080/api/Background_Image?title=${encodedTerm}`);
+      const rawgData: Root = await res2.json();
 
-      onSearchResults({ cheapShark: data, rawg: data2 });
+      // Pass the full Root object, not just rawgData.results
+      onSearchResults({ cheapShark: cheapSharkData, rawg: rawgData });
 
     } catch (error) {
       console.error('Error fetching game data:', error);

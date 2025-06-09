@@ -1,10 +1,20 @@
-export type GameDetails = {
+// Root.ts (RAWG API Response)
+export interface Root {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: GameDetails[];
+  user_platforms: boolean;
+}
+
+// GameDetails.ts
+export interface GameDetails {
   id: number;
-  results: [];
   slug: string;
   name: string;
   name_original: string;
   description: string;
+  description_raw: string;
   metacritic: number;
   metacritic_platforms: [];
   released: string;
@@ -127,5 +137,4 @@ export type GameDetails = {
     slug: string;
   };
   clip: null;
-  description_raw: string;
-};
+}

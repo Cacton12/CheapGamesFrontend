@@ -1,20 +1,12 @@
 import { Root as ExchangeData } from '../Models/ExchangeData';
 import { Game } from '../Models/Game';
-import { GameDetails } from '../Models/GameData2';
+import { Root } from '../Models/GameData2';  // RAWG API Root type with results array inside
 import { useEffect, useState } from 'react';
-
-// Define the shape of the RAWG API response
-type RawgApiResponse = {
-  results: GameDetails[];
-  count?: number;
-  next?: string;
-  previous?: string;
-};
 
 type MainSectionProps = {
   results: {
     cheapShark: Game[];
-    rawg: RawgApiResponse;
+    rawg: Root;  // RAWG API Root object, not array
   };
   selectedCurrency: string;
   exchangeRates: ExchangeData | null;
@@ -28,17 +20,20 @@ function getExchangeRate(exchangeRates: ExchangeData | null, selectedCurrency: s
 
 export default function MainSection({ results, selectedCurrency, exchangeRates }: MainSectionProps) {
   const [visibleCount, setVisibleCount] = useState(20);
+  const loadMoreCount = 20;
 
   const handleLoadMore = () => {
-    setVisibleCount((prev) => prev + 20);
+    setVisibleCount((prev) => prev + loadMoreCount);
   };
 
-  const rate = getExchangeRate(exchangeRates, selectedCurrency);
-  const visibleGames = results.cheapShark.slice(0, visibleCount);
-
+  // Reset visibleCount when cheapShark results change
   useEffect(() => {
     setVisibleCount(20);
   }, [results.cheapShark]);
+
+  const rate = getExchangeRate(exchangeRates, selectedCurrency);
+
+  const visibleGames = results.cheapShark.slice(0, visibleCount);
 
   if (visibleGames.length === 0) {
     return (
@@ -54,15 +49,18 @@ export default function MainSection({ results, selectedCurrency, exchangeRates }
       <h2 className="text-3xl font-bold mb-8 text-center text-blue-400">Game Deals</h2>
       <div className="flex flex-wrap justify-center gap-8">
         {visibleGames.map((game) => {
+          // Access the RAWG games array inside the root object
           const rawgGame = results.rawg.results.find(
             (rawgItem) => rawgItem.name.toLowerCase() === game.external.toLowerCase()
           );
 
           const backgroundImage = rawgGame?.background_image || game.thumb;
-          const convertedPrice = rate ? (parseFloat(game.cheapest) * rate).toFixed(2) : game.cheapest;
+          const convertedPrice = rate
+            ? (parseFloat(game.cheapest) * rate).toFixed(2)
+            : game.cheapest;
 
           return (
-            <div key={game.gameID} className="w-72 bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+            <div key={game.gameID} className="w-72 bg-gray-900 rounded-lg shadow-lg overflow-hidden flex flex-col">
               <img src={backgroundImage} alt={game.external} className="w-full h-44 object-cover" />
               <div className="p-5 flex flex-col flex-grow">
                 <h3 className="text-xl font-semibold mb-3 text-white truncate">{game.external}</h3>
