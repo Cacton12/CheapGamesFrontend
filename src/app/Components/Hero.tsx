@@ -40,7 +40,10 @@ const Hero: React.FC<HeroProps> = ({ onSearchResults }) => {
           Want to find a cheap game?
         </h1>
         <p className="text-lg sm:text-xl text-gray-300">
-          This web app will search for the cheapest game price for you!
+          This web app will search for the cheapest game price for you! Just enter what you want to search and press the magnifying glass
+        </p>
+        <p className="text-lg sm:text-xl text-gray-300 pt-4">
+          <span className='text-2xl font-bold'>Note:</span> Loading is slow due to free hosting tier&apos;s
         </p>
       </div>
 
