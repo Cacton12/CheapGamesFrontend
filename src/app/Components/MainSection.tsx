@@ -3,10 +3,18 @@ import { Game } from '../Models/Game';
 import { GameDetails } from '../Models/GameData2';
 import { useEffect, useState } from 'react';
 
+// Define the shape of the RAWG API response
+type RawgApiResponse = {
+  results: GameDetails[];
+  count?: number;
+  next?: string;
+  previous?: string;
+};
+
 type MainSectionProps = {
   results: {
     cheapShark: Game[];
-    rawg: GameDetails[];
+    rawg: RawgApiResponse;
   };
   selectedCurrency: string;
   exchangeRates: ExchangeData | null;
@@ -19,29 +27,20 @@ function getExchangeRate(exchangeRates: ExchangeData | null, selectedCurrency: s
 }
 
 export default function MainSection({ results, selectedCurrency, exchangeRates }: MainSectionProps) {
+  const [visibleCount, setVisibleCount] = useState(20);
 
-  const [VisibleCount, setVisableCount] = useState(20);
-  
-  let showMore = 20;
   const handleLoadMore = () => {
-    setVisableCount((prev) => prev + showMore);
+    setVisibleCount((prev) => prev + 20);
   };
 
   const rate = getExchangeRate(exchangeRates, selectedCurrency);
-
-  const visableGames = results.cheapShark.slice(0, VisibleCount);
-
-  const resetShowMore = () =>{
-    showMore = 20;
-  }
+  const visibleGames = results.cheapShark.slice(0, visibleCount);
 
   useEffect(() => {
-    resetShowMore()
-    setVisableCount(20)
+    setVisibleCount(20);
   }, [results.cheapShark]);
 
-
-  if (visableGames.length === 0) {
+  if (visibleGames.length === 0) {
     return (
       <div className="max-w-4xl mx-auto p-6 text-center text-gray-400">
         <p className="text-lg font-semibold">No games found.</p>
@@ -54,20 +53,16 @@ export default function MainSection({ results, selectedCurrency, exchangeRates }
     <div className="max-w-6xl mx-auto p-6">
       <h2 className="text-3xl font-bold mb-8 text-center text-blue-400">Game Deals</h2>
       <div className="flex flex-wrap justify-center gap-8">
-{visableGames.map((game) => {
-  // Access the RAWG games array
-  const rawgGamesArray = results.rawg.results;
+        {visibleGames.map((game) => {
+          const rawgGame = results.rawg.results.find(
+            (rawgItem) => rawgItem.name.toLowerCase() === game.external.toLowerCase()
+          );
 
-  // Find matching RAWG game by name (case-insensitive)
-  const rawgGame = rawgGamesArray.find(
-    (rawgItem) => rawgItem.name.toLowerCase() === game.external.toLowerCase()
-  );
+          const backgroundImage = rawgGame?.background_image || game.thumb;
+          const convertedPrice = rate ? (parseFloat(game.cheapest) * rate).toFixed(2) : game.cheapest;
 
-  const backgroundImage = rawgGame?.background_image || game.thumb;
-  const convertedPrice = rate ? (parseFloat(game.cheapest) * rate).toFixed(2) : game.cheapest;
-
-  return (
-            <div key={game.gameID} className="w-72 ...">
+          return (
+            <div key={game.gameID} className="w-72 bg-gray-800 rounded-lg overflow-hidden shadow-lg">
               <img src={backgroundImage} alt={game.external} className="w-full h-44 object-cover" />
               <div className="p-5 flex flex-col flex-grow">
                 <h3 className="text-xl font-semibold mb-3 text-white truncate">{game.external}</h3>
@@ -75,9 +70,12 @@ export default function MainSection({ results, selectedCurrency, exchangeRates }
                   Price ({selectedCurrency}):{' '}
                   <span className="font-bold text-white">${convertedPrice}</span>
                 </p>
-                <a href={`https://www.cheapshark.com/redirect?dealID=${game.cheapestDealID}`}
-                  target="_blank" rel="noopener noreferrer"
-                  className="mt-auto inline-block text-center px-5 py-2 bg-blue-600 rounded-lg text-white hover:bg-blue-700 transition-colors font-semibold">
+                <a
+                  href={`https://www.cheapshark.com/redirect?dealID=${game.cheapestDealID}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-auto inline-block text-center px-5 py-2 bg-blue-600 rounded-lg text-white hover:bg-blue-700 transition-colors font-semibold"
+                >
                   View Deal
                 </a>
               </div>
@@ -85,7 +83,8 @@ export default function MainSection({ results, selectedCurrency, exchangeRates }
           );
         })}
       </div>
-            {VisibleCount < results.cheapShark.length && (
+
+      {visibleCount < results.cheapShark.length && (
         <div className="mt-8 text-center">
           <button
             onClick={handleLoadMore}

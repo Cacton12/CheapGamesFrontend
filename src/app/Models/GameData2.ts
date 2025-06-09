@@ -1,5 +1,6 @@
 export type GameDetails = {
   id: number;
+  results: [];
   slug: string;
   name: string;
   name_original: string;
