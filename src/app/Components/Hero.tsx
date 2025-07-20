@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Game } from '../Models/Game';
 import { Root } from '../Models/GameData2';  // Assuming Root is the full RAWG response type
 
@@ -10,6 +10,12 @@ type HeroProps = {
 
 const Hero: React.FC<HeroProps> = ({ onSearchResults }) => {
   const [searchTerm, setSearchTerm] = useState('');
+
+  //used to wake up the backend
+    useEffect(() => {
+  fetch('https://your-backend.onrender.com/api/health')
+    .catch(() => console.log('Backend waking up...'));
+}, []);
 
   const handleSearch = async () => {
     if (!searchTerm.trim()) return;
